@@ -8,5 +8,8 @@ class TypedText:
     def delete_text(self):
         self.content = self.content[:-1]
 
+    def clear(self):
+        self.content = ""
+
     def get_text(self):
         return self.content
