@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 import os
 
+# Get the base directory for asset paths (parent of src folder)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 def overlay_image_alpha(img, img_overlay, x, y, alpha_mask):
     """Overlay img_overlay on img at (x, y) using alpha_mask for transparency."""
@@ -69,17 +72,19 @@ class KeyboardDisplay:
         self.hover_states = {k: 0.0 for k in self.all_keys}
 
         # Load logo for header left
-        self.logo_path = "assets/keyboard-symbol.png"
+        self.logo_path = os.path.join(BASE_DIR, "assets", "keyboard-symbol.png")
         if os.path.exists(self.logo_path):
             self.logo = cv2.imread(self.logo_path, cv2.IMREAD_UNCHANGED)
         else:
+            print(f"[WARNING] Logo not found at {self.logo_path}")
             self.logo = None
 
         # Load branding text image for header right
-        self.brand_text_path = "assets/name.png"
+        self.brand_text_path = os.path.join(BASE_DIR, "assets", "name.png")
         if os.path.exists(self.brand_text_path):
             self.brand_text_img = cv2.imread(self.brand_text_path, cv2.IMREAD_UNCHANGED)
         else:
+            print(f"[WARNING] Brand text image not found at {self.brand_text_path}")
             self.brand_text_img = None
 
         # Fix: Add caching attributes that are used by _prepare_header_assets
@@ -399,6 +404,4 @@ class KeyboardDisplay:
             else:
                 frame[logo_y:logo_y+logo_h, logo_x:logo_x+logo_w] = self.cached_logo
 
-        return frame
-            
         return frame

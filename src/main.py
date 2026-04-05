@@ -1,6 +1,7 @@
 import cv2
 import time
 import os
+import sys
 from hand_detection import HandDetectionController
 from keyboard_display import KeyboardDisplay
 from typed_text import TypedText
@@ -10,8 +11,10 @@ from sound_manager import play_intro, play_click
 
 
 # ===================== CONFIG =====================
+# Get the base directory (parent of src folder) for asset paths
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FORCE_SAMPLE_VIDEO = False   # True on PC (no webcam), False on laptop
-SAMPLE_VIDEO_PATH = "sample.mp4"
+SAMPLE_VIDEO_PATH = os.path.join(BASE_DIR, "sample.mp4")
 # ==================================================
 
 
@@ -36,15 +39,15 @@ def get_video_source():
 
 def show_splash_screen():
     intro_played = False
-    logo_path = "assets/keymorpher-ai-logo.png"
+    logo_path = os.path.join(BASE_DIR, "assets", "keymorpher-ai-logo.png")
 
     if not os.path.exists(logo_path):
-        print(f"Error: Logo file not found at {logo_path}")
+        print(f"[ERROR] Logo file not found at {logo_path}")
         return
 
     logo = cv2.imread(logo_path, cv2.IMREAD_UNCHANGED)
     if logo is None:
-        print("Error: Failed to load the logo image.")
+        print("[ERROR] Failed to load the logo image.")
         return
 
     logo_height, logo_width = logo.shape[:2]
@@ -146,7 +149,6 @@ def main():
 
         # Force Full HD rendering pipeline to eliminate blur/pixelation
         frame = cv2.resize(frame, (1920, 1080), interpolation=cv2.INTER_LINEAR)
-        print(frame.shape)
 
         frame = cv2.flip(frame, 1)
 
@@ -180,11 +182,19 @@ def main():
                         typed_text.clear()
                     elif hovered_key == "ENTER":
                         if current_step == "name":
-                            user_data["name"] = typed_text.get_text()
+                            name_input = typed_text.get_text().strip()
+                            if len(name_input) < 2:
+                                print("[WARNING] Name must be at least 2 characters")
+                                continue
+                            user_data["name"] = name_input
                             typed_text.clear()
                             current_step = "roll_number"
                         elif current_step == "roll_number":
-                            user_data["roll_number"] = typed_text.get_text()
+                            roll_input = typed_text.get_text().strip()
+                            if len(roll_input) < 1:
+                                print("[WARNING] Roll number cannot be empty")
+                                continue
+                            user_data["roll_number"] = roll_input
                             typed_text.clear()
                             current_step = "branch"
                     else:
