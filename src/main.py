@@ -43,6 +43,12 @@ def show_splash_screen():
 
     if not os.path.exists(logo_path):
         print(f"[ERROR] Logo file not found at {logo_path}")
+        print("[ERROR] This means your assets folder might be missing.")
+        print("[HELP] Try running from the project root and verify assets with:")
+        print("       cd {repo_root}")
+        print("       python verify_assets.py")
+        print("[INFO] You can still run without splash screen. Press ENTER to continue...")
+        input()
         return
 
     logo = cv2.imread(logo_path, cv2.IMREAD_UNCHANGED)

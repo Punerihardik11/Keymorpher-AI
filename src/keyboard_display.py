@@ -75,16 +75,28 @@ class KeyboardDisplay:
         self.logo_path = os.path.join(BASE_DIR, "assets", "keyboard-symbol.png")
         if os.path.exists(self.logo_path):
             self.logo = cv2.imread(self.logo_path, cv2.IMREAD_UNCHANGED)
+            if self.logo is not None:
+                print(f"[OK] Keyboard symbol loaded")
+            else:
+                print(f"[WARNING] Failed to read keyboard-symbol.png (corrupted file?)")
+                self.logo = None
         else:
-            print(f"[WARNING] Logo not found at {self.logo_path}")
+            print(f"[WARNING] Keyboard symbol not found at {self.logo_path}")
+            print(f"[TIP] Run 'python verify_assets.py' to check all assets")
             self.logo = None
 
         # Load branding text image for header right
         self.brand_text_path = os.path.join(BASE_DIR, "assets", "name.png")
         if os.path.exists(self.brand_text_path):
             self.brand_text_img = cv2.imread(self.brand_text_path, cv2.IMREAD_UNCHANGED)
+            if self.brand_text_img is not None:
+                print(f"[OK] Branding text loaded")
+            else:
+                print(f"[WARNING] Failed to read name.png (corrupted file?)")
+                self.brand_text_img = None
         else:
             print(f"[WARNING] Brand text image not found at {self.brand_text_path}")
+            print(f"[TIP] Run 'python verify_assets.py' to check all assets")
             self.brand_text_img = None
 
         # Fix: Add caching attributes that are used by _prepare_header_assets
@@ -184,8 +196,9 @@ class KeyboardDisplay:
         actual_key_h = self.key_height - self.gap
         self.key_width = (keyboard_width // 10) - self.gap
         
-        self.start_y = frame_height - keyboard_height - int(frame_height * 0.02) # bottom margin
+        self.start_y = frame_height - keyboard_height - int(frame_height * 0.06) # More bottom margin for accessibility
         self.hitboxes = {}
+        self.HITBOX_TOLERANCE = 15  # Add 15px tolerance around hitboxes for better detection
 
         # Draw normal keys
         for row_index, row in enumerate(self.keys):
@@ -315,8 +328,12 @@ class KeyboardDisplay:
         if not hasattr(self, 'hitboxes'):
             return None
 
+        tolerance = getattr(self, 'HITBOX_TOLERANCE', 15)
+        
         for key, (bx, by, bw, bh) in self.hitboxes.items():
-            if bx <= x <= bx + bw and by <= y <= by + bh:
+            # Add tolerance padding around hitboxes for better proximity detection
+            # Especially important for bottom keys when hands are close
+            if (bx - tolerance) <= x <= (bx + bw + tolerance) and (by - tolerance) <= y <= (by + bh + tolerance):
                 return key
 
         return None
