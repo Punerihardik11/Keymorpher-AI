@@ -59,7 +59,7 @@ def show_splash_screen():
     logo_height, logo_width = logo.shape[:2]
     scale_factor = 0.85
     target_scale = 1.0
-    animation_duration = 1.5
+    animation_duration = 4.0  # Extended from 1.5 to allow intro sound to play
     fps = 30
     total_frames = int(animation_duration * fps)
 
